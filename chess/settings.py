@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'battle',
 ]
 
 MIDDLEWARE = [
@@ -70,8 +71,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'chess.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
     'default': {
