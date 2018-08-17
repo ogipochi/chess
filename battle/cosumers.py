@@ -38,16 +38,57 @@ from channels.consumer import AsyncConsumer
 
 
 # 同期通信の例
-class EchoConsumer(AsyncConsumer):
-    async def websocket_connect(self,event):
-        await self.send({
-            "type" : "websocket.accept",
-        })
-    async def websocket_receive(self,event):
-        await self.send({
-            "type":"websocket.send",
-            "text":event["text"]
-        })
-    
+# class EchoConsumer(AsyncConsumer):
+#     async def websocket_connect(self,event):
+#         await self.send({
+#             "type" : "websocket.accept",
+#         })
+#     async def websocket_receive(self,event):
+#         await self.send({
+#             "type":"websocket.send",
+#             "text":event["text"]
+#         })
+
+
+from channels.generic.websocket import WebsocketConsumer
+
+
+# WebSocketConsumerを使った例
+# 自分で独自の認証メソッドなどを作成したい場合(mixinを使わない場合)
+# 結果ごとにchannels.exceptions.AcceptConnection や channels.exceptions.DenyConnection
+# をraiseすればいい
+# groupsの名前が出ると自動的にその名前のgroupに追加される.
+
+
+class MyConsumer(WebsocketConsumer):
+    groups = ["broadcast"]
+    def connect(self):
+        """
+        connectionで呼ばれる
+        """
+
+        # connection callを受け取る場合
+        self.accept()
+        # self.scope['subprotocols']で定義されたサブプロトコルか判断して受け取る場合
+        self.accept('subprotocol')
+        # 拒否する場合
+        self.close()
+    def receive(self,text_data = None,bytes_data=None):
+        """
+        各フレームでtext_dataかbytesデータと一緒に呼ばれる
+        """
+        # テキストデータを送る場合
+        self.send(text_data='Hello World')
+        # バイトデータを送る場合
+        self.send(bytes_data='Hello World')
+
+        #強制クローズする場合
+        self.close()
+        #エラーコード込でクローズする場合
+        self.close(code=4123)
+
+    def disconnect(self,close_code):
+        # closeした時呼ばれる
+        pass
 
 
