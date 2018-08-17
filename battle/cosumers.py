@@ -60,35 +60,74 @@ from channels.generic.websocket import WebsocketConsumer
 # groupsの名前が出ると自動的にその名前のgroupに追加される.
 
 
-class MyConsumer(WebsocketConsumer):
+# class MyConsumer(WebsocketConsumer):
+#     groups = ["broadcast"]
+#     def connect(self):
+#         """
+#         connectionで呼ばれる
+#         """
+
+#         # connection callを受け取る場合
+#         self.accept()
+#         # self.scope['subprotocols']で定義されたサブプロトコルか判断して受け取る場合
+#         self.accept('subprotocol')
+#         # 拒否する場合
+#         self.close()
+#     def receive(self,text_data = None,bytes_data=None):
+#         """
+#         各フレームでtext_dataかbytesデータと一緒に呼ばれる
+#         """
+#         # テキストデータを送る場合
+#         self.send(text_data='Hello World')
+#         # バイトデータを送る場合
+#         self.send(bytes_data='Hello World')
+
+#         #強制クローズする場合
+#         self.close()
+#         #エラーコード込でクローズする場合
+#         self.close(code=4123)
+
+#     def disconnect(self,close_code):
+#         # closeした時呼ばれる
+#         pass
+
+
+
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+
+class MyConsumer(AsyncWebsocketConsumer):
     groups = ["broadcast"]
-    def connect(self):
+
+    async def connect(self):
         """
         connectionで呼ばれる
         """
-
-        # connection callを受け取る場合
-        self.accept()
-        # self.scope['subprotocols']で定義されたサブプロトコルか判断して受け取る場合
-        self.accept('subprotocol')
-        # 拒否する場合
-        self.close()
-    def receive(self,text_data = None,bytes_data=None):
+        # connection callをacceptする場合
+        await self.accept()
+        # 指定したsubprotocolを受け取る場合
+        # 利用可能なsubprotocolのリストはself.scope["subprotocols"]で取得可能
+        await self.accept("subprotocol")
+        # connection callを拒否する場合
+        await self.close()
+    async def receive(self,text_data=None,bytes_data=None):
         """
-        各フレームでtext_dataかbytesデータと一緒に呼ばれる
+        各フレームでtext dataかbytes dataを受け取る
         """
         # テキストデータを送る場合
-        self.send(text_data='Hello World')
-        # バイトデータを送る場合
-        self.send(bytes_data='Hello World')
+        await self.send(text_data="Hello World")
+        # バイナリデータを送る場合
+        await self.send(bytes_data="Hello World")
+        # connectionを閉じる場合
+        await self.close()
+        # カスタムのエラーコード
+        await self.close(code=4123)
 
-        #強制クローズする場合
-        self.close()
-        #エラーコード込でクローズする場合
-        self.close(code=4123)
-
-    def disconnect(self,close_code):
-        # closeした時呼ばれる
+    async def disconnect(self,close_code):
+        """
+        closeした時呼ばれる
+        """
         pass
+
 
 
