@@ -29,7 +29,15 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+ASGI_APPLICATION = "chess.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,10 +45,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'battle',
+    'chat',
+    'sample',
 ]
 
-ASGI_APLLICATION = "chess.routing.application"
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -119,3 +130,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# デフォルトのchannel layerはchannel.layers.get_hannel_layer()で取得可能
+# Consumerを使っている場合はself.channel_layerで取得
+# きほんsend(),group_send(),group_addはすべて非同期関数である.
+# そのため,awaitを接頭辞につけて使う必要がある.
+# 同期関数として使いたい場合,asgiref.sync.async_to_syncを使う必要がある
+#   例:
+#       from asgiref.sync import async_to_sync
+#       async_to_sync(channel_layer.send)("channel_name", {...})
+
+
+
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "asgiref.inmemory.ChannelLayer",
+#         "ROUTING": "chess.routing.channel_routing",
+#     },
+# }
+
