@@ -35,6 +35,10 @@ class WaitingConsumer(AsyncWebsocketConsumer):
         )
         channel_layer = get_channel_layer()
         print(dir(channel_layer))
+        print(self.scope["user"])
+        print(type(self.scope["user"]))
+        print(dir(self.scope["user"]))
+        print(self.scope["user"].is_authenticated())
         # print('channel_names',channel_layer.valid_channel_names())
         print('チャンネル有効期限',channel_layer.group_expiry)
         

@@ -27,6 +27,10 @@
         console.error('Chat socket closed unexpectedly');
     };
 
+    setInterval(function() {
+        chatSocket.send(JSON.stringify("heartbeat"));
+    }, 30000);
+
     //chatSocket.onopen = () => chatSocket.send(JSON.stringify({
     //    'message': userName,
     //}));
