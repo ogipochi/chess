@@ -4,6 +4,7 @@ from django.conf import settings
 from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
 from datetime import timedelta
+from presences.signals import presence_changed
 
 
 class PresenceManager(models.Manager):
