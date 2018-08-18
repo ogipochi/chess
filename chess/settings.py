@@ -48,8 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'battle',
-    'chat',
-    'sample',
     'presences'
 ]
 
