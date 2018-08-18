@@ -146,8 +146,15 @@ STATIC_URL = '/static/'
 
 # CHANNEL_LAYERS = {
 #     "default": {
-#         "BACKEND": "asgiref.inmemory.ChannelLayer",
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
 #         "ROUTING": "chess.routing.channel_routing",
 #     },
 # }
-
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}

@@ -14,7 +14,7 @@
     // ウェブソケット作成
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
-        '/ws/waiting/');
+        '/ws/waiting/' + userName + '/');
     // メッセージ作成
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
@@ -27,8 +27,8 @@
         console.error('Chat socket closed unexpectedly');
     };
 
-    chatSocket.onopen = () => chatSocket.send(JSON.stringify({
-        'message': userName,
-    }));
+    //chatSocket.onopen = () => chatSocket.send(JSON.stringify({
+    //    'message': userName,
+    //}));
 </script>
 </html>

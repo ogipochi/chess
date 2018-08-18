@@ -1,26 +1,77 @@
 from channels.generic.websocket import WebsocketConsumer,AsyncWebsocketConsumer
 import json
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import time
 
 
-class WaitingConsumer(WebsocketConsumer):
-    def connect(self):
+
+
+class WaitingConsumer(AsyncWebsocketConsumer):
+    groups = ['waiting']
+    async def connect(self):
         """
         ユーザー追加
         ユーザーリストを返す
         """
-        print("[WaitingConsumer]Connect")
-        self.accept()
-    def disconnect(self, close_code):
+        await self.accept()
+        print("username",self.scope['url_route']['kwargs']['username'])
+        self.username = self.scope['url_route']['kwargs']['username']
+        await self.channel_layer.group_add(
+            'waiting',self.username)
+        
+
+        await self.channel_layer.group_send(
+            'waiting',{
+                'type':'user_list',
+            }
+        )
+        await self.channel_layer.group_send(
+            'waiting',
+            {
+                'type': 'chat_message',
+                'message': 'hello world'
+            }
+        )
+        channel_layer = get_channel_layer()
+        print(dir(channel_layer))
+        # print('channel_names',channel_layer.valid_channel_names())
+        print('チャンネル有効期限',channel_layer.group_expiry)
+        
+
+
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
+        
+    async def user_list(self,event):
+        print('hello world')
+        await self.send(text_data=json.dumps({
+            'message': 'hello'
+        }))
+    async def disconnect(self, close_code):
         pass
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         """
         戦いたいユーザーを受け取る
         urlを返す(時間関数のハッシュ)).
         """
         print("[WaitingConsumer]Receive")
-        # channel_layer = get_channel_layer()
-        # ch_group_list = channel_layer.group_channels('<your group name>')
+        print(self.channel_layer)
+        print(self.channel_name)
+        await self.channel_layer.group_send(
+            'waiting',{
+                'type':'user_list',
+            }
+        )
+        
+        
         # channel_layer = get_channel_layer()
 
         # text_data_json = json.loads(text_data)
