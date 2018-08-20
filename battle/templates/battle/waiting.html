@@ -28,7 +28,7 @@
     };
 
     setInterval(function() {
-        chatSocket.send(JSON.stringify("heartbeat"));
+        chatSocket.send(JSON.stringify({"type":"heartbeat","message":""}));
     }, 30000);
 
     //chatSocket.onopen = () => chatSocket.send(JSON.stringify({

@@ -37,6 +37,7 @@ class Presence(models.Model):
     class Meta:
         # 部屋ごとに同じchannel_nameは一人まで
         unique_together = [('room','channel_name')]
+        ordering=['last_seen']
 
 class RoomManager(models.Manager):
     def add(self,room_channel_name,user_channel_name,user=None):
@@ -77,7 +78,8 @@ class Room(models.Model):
     objects = RoomManager()
     def __str_(self):
         return self.channel_name
-    
+    def get_all_presence(self):
+        return Presence.objects.filter(room=self.id)
     def add_presence(self,channel_name):
         """
         ユーザーが認証済か確認しPresenceインスタンスを作成

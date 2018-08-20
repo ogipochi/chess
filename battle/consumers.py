@@ -4,6 +4,10 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
 from presences.models import Room,Presence
+from django.dispatch import receiver
+
+from presences.signals import presence_changed
+from django.core import serializers
 
 
 
@@ -22,44 +26,22 @@ class WaitingConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(
             'waiting',self.username)
         # Roomに追加    
-        Room.objects.add("waiting", self.username)
+        self.room = Room.objects.add("waiting", self.username)
 
         await self.channel_layer.group_send(
             'waiting',{
                 'type':'user_list',
             }
         )
-        await self.channel_layer.group_send(
-            'waiting',
-            {
-                'type': 'chat_message',
-                'message': 'hello world'
-            }
-        )
         channel_layer = get_channel_layer()
-        print(dir(channel_layer))
-        print(self.scope["user"])
-        print(type(self.scope["user"]))
-        print(dir(self.scope["user"]))
-        print(self.scope["user"].is_authenticated())
-        # print('channel_names',channel_layer.valid_channel_names())
         print('チャンネル有効期限',channel_layer.group_expiry)
         
-
-    # Receive message from room group
-    async def chat_message(self, event):
-        message = event['message']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-        
     async def user_list(self,event):
-        print('hello world')
-        await self.send(text_data=json.dumps({
-            'message': 'hello'
-        }))
+        await self.send(
+        serializers.serialize(
+                    "json",self.room.get_all_presence()
+                    )
+        )
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             'waiting',self.username)
@@ -70,8 +52,11 @@ class WaitingConsumer(AsyncWebsocketConsumer):
         戦いたいユーザーを受け取る
         urlを返す(時間関数のハッシュ)).
         """
-        if json.dumps(text_data)["message"] == '"heartbeat"':
-            Presence.objects.touch(message.reply_channel.name)
+        print(text_data)
+        text_json = json.loads(text_data)
+        # if text_json["type"] == 'heartbeat':
+        #     print("Renew")
+        #     Presence.objects.touch(self.username)
         print("[WaitingConsumer]Receive")
         print(self.channel_layer)
         print(self.channel_name)
@@ -80,6 +65,19 @@ class WaitingConsumer(AsyncWebsocketConsumer):
                 'type':'user_list',
             }
         )
+    # @receiver(presence_changed)
+    # async def broadcast_presence(self,room,**kwargs):
+    #     self.channel_layer.group_send(
+    #         'waiting',
+    #         {
+    #             'text':json.dumps({
+    #                 'type':'presence',
+    #                 'payload':{
+    #                     'channel_name':self.channel_name,
+    #                 }
+    #             })
+    #         }
+    #     )
         
         
         
