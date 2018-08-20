@@ -140,9 +140,8 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('10.0.0.3s', 6379)],
+            "hosts": [('10.0.0.3', 6379)],
         },
-        "ROUTING" : "websocket.routing.channel_routing"
     },
 }
 CELERYBEAT_SCHEDULE = {
