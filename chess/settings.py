@@ -31,14 +31,7 @@ ALLOWED_HOSTS = ['*',]
 
 # Application definition
 ASGI_APPLICATION = "chess.routing.application"
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('10.0.0.3', 6379)],
-        },
-    },
-}
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,7 +42,7 @@ INSTALLED_APPS = [
     'gunicorn',
     'channels',
     'battle',
-    'presences'
+    'presences',
 ]
 
 
@@ -143,23 +136,15 @@ STATIC_URL = '/static/'
 #       async_to_sync(channel_layer.send)("channel_name", {...})
 
 
-
-
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "ROUTING": "chess.routing.channel_routing",
-#     },
-# }
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('10.0.0.3s', 6379)],
         },
+        "ROUTING" : "websocket.routing.channel_routing"
     },
 }
-
 CELERYBEAT_SCHEDULE = {
     'prune-presence': {
         'task': 'channels_presence.tasks.prune_presence',
