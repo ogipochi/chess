@@ -93,7 +93,7 @@ class Room(models.Model):
         if created:
             channel_layer = get_channel_layer()
             # グループにチャンネルを追加
-            channel_layer.add(self.channel_name,channel_name)
+            channel_layer.group_add(self.channel_name,channel_name)
             self.broadcast_channged(added=presence)
     def remove_presence(self,channel_name=None,presence=None):
         """
@@ -107,7 +107,7 @@ class Room(models.Model):
                 return
         # グループからchannel_nameを削除
         channel_layer = get_channel_layer()
-        channel_layer.discard(self.channel_name,channel_name)
+        channel_layer.group_discard(self.channel_name,channel_name)
         # presenceインスタンスを削除
         presence.delete()
         self.broadcast_channged(removed=presence)

@@ -3,6 +3,7 @@ import json
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
+from presences.models import Room,Presence
 
 
 
@@ -17,9 +18,11 @@ class WaitingConsumer(AsyncWebsocketConsumer):
         await self.accept()
         print("username",self.scope['url_route']['kwargs']['username'])
         self.username = self.scope['url_route']['kwargs']['username']
+        # Groupに追加
         await self.channel_layer.group_add(
             'waiting',self.username)
-        
+        # Roomに追加    
+        Room.objects.add("waiting", self.username)
 
         await self.channel_layer.group_send(
             'waiting',{
@@ -43,7 +46,6 @@ class WaitingConsumer(AsyncWebsocketConsumer):
         print('チャンネル有効期限',channel_layer.group_expiry)
         
 
-
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
@@ -59,13 +61,17 @@ class WaitingConsumer(AsyncWebsocketConsumer):
             'message': 'hello'
         }))
     async def disconnect(self, close_code):
-        pass
+        await self.channel_layer.group_discard(
+            'waiting',self.username)
+        Room.objects.remove("waiting",self.username)
 
     async def receive(self, text_data):
         """
         戦いたいユーザーを受け取る
         urlを返す(時間関数のハッシュ)).
         """
+        if json.dumps(text_data)["message"] == '"heartbeat"':
+            Presence.objects.touch(message.reply_channel.name)
         print("[WaitingConsumer]Receive")
         print(self.channel_layer)
         print(self.channel_name)
@@ -74,6 +80,7 @@ class WaitingConsumer(AsyncWebsocketConsumer):
                 'type':'user_list',
             }
         )
+        
         
         
         # channel_layer = get_channel_layer()
